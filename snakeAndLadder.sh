@@ -1,10 +1,22 @@
-playerPosition=0;
-declare -A gameStatus;
-gameStatus[0]=0;
-noOfTimesDieRolled;
-# key represents die count and value represents player position;
-for ((i=1; playerPosition < 100; i++ ))
-do
+playerPosition1=0;
+playerPosition2=0;
+declare PlayerOneGameStatus;
+declare PlayerTwoGameStatus;
+PlayerOneGameStatus[0]=0;
+PlayerTwoGameStatus[0]=0;
+i=1;
+playWithTwo() {
+    play $playerPosition1 PlayerOneGameStatus;
+    playerPosition1=$?;
+    play $playerPosition2 PlayerTwoGameStatus;
+    playerPosition2=$?;
+    if (( $playerPosition1 < 100 && $playerPosition2 < 100 ));then
+        playWithTwo;
+    fi
+}
+play() { 
+    playerPosition=$1;   
+    local -n declare gameStatus=$2;
     dieValue=$(( ( RANDOM % 6 )  + 1 ));
     playStatus=$(( RANDOM % 5 ));
     case $playStatus in
@@ -26,5 +38,13 @@ do
         playerPosition=$temp;
     fi
     gameStatus[$i]=$playerPosition;
-done
-noOfTimesDieRolled=${#gameStatus[@]};
+    i=$(($i+1));
+    return $playerPosition;
+}
+
+playWithTwo;
+# out put------
+echo "$playerPosition1 one position";
+echo "$playerPosition2 two position";
+echo "${PlayerOneGameStatus[@]} one status";
+echo "${PlayerTwoGameStatus[@]} two status";
