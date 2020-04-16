@@ -1,35 +1,46 @@
-playerPosition1=0;
-playerPosition2=0;
-declare PlayerOneGameStatus;
-declare PlayerTwoGameStatus;
-PlayerOneGameStatus[0]=0;
-PlayerTwoGameStatus[0]=0;
-i=1;
-playWithTwo() {
-    play $playerPosition1 PlayerOneGameStatus;
-    playerPosition1=$?;
-    play $playerPosition2 PlayerTwoGameStatus;
-    playerPosition2=$?;
-    if (( $playerPosition1 < 100 && $playerPosition2 < 100 ));then
-        playWithTwo;
-    fi
+echo "enter number of players "; read noOfPlayers;
+declare playerPlacesList;
+leadingPlayer=0;
+declare  playerStatusList;
+numberOfChaces=0;
+
+ # makes the all players to inetial state
+start() {
+    for ((i=1; i<=$noOfPlayers; i++))
+    do
+        playerPlacesList[$i]=0;
+    done
 }
+
+ # gives chance to play all players and stores their places untill any one of player wins
+multiPlayer() {
+    start;
+    while (( $leadingPlayer < 100))
+    do
+        playerStatusList=$1;
+        numberOfChaces=$(( $numberOfChaces + 1 ));
+        for ((i=1; i<=$noOfPlayers; i++))
+        do
+            play ${playerPlacesList[$i]};
+            temp=$?;
+            playerPlacesList[$i]=$temp;
+            playerStatusList["$i, $numberOfChaces"]=$temp;
+            if (( $leadingPlayer < $temp )); then
+                leadingPlayer=$temp;
+            fi
+        done
+    done
+}
+
+# rolles the die and return the player next plase acording to play state
 play() { 
-    playerPosition=$1;   
-    local -n declare gameStatus=$2;
+    playerPosition=$1;  
     dieValue=$(( ( RANDOM % 6 )  + 1 ));
-    playStatus=$(( RANDOM % 5 ));
-    case $playStatus in
-        0)  
-            echo "no play" ;
-            dieValue=0 ;;
-        1) 
-            echo "snake";
-            dieValue=$(( $dieValue * -1 )) ;;
-        *) 
-            echo "ladder" ;; 
-    esac
-    temp=$(( $playerPosition + $dieValue ));
+    playStatus=$(( ( RANDOM % 5 ) - 1 ));
+    if (( $playStatus > 1)); then
+        playStatus=1;
+    fi
+    temp=$(( $playerPosition + $(($dieValue * $playStatus)) ));
     if (($temp < 0)); then
         playerPosition=0;
     elif (( $temp >= 100 )); then
@@ -37,14 +48,11 @@ play() {
     else
         playerPosition=$temp;
     fi
-    gameStatus[$i]=$playerPosition;
-    i=$(($i+1));
     return $playerPosition;
 }
 
-playWithTwo;
-# out put------
-echo "$playerPosition1 one position";
-echo "$playerPosition2 two position";
-echo "${PlayerOneGameStatus[@]} one status";
-echo "${PlayerTwoGameStatus[@]} two status";
+multiPlayer;
+
+# out put
+echo ${playerPlacesList[@]}
+echo $numberOfChaces;
