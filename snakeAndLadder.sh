@@ -1,7 +1,9 @@
-echo "Welcome";
-
 playerPosition=0;
-while ((playerPosition < 100))
+declare -A gameStatus;
+gameStatus[0]=0;
+noOfTimesDieRolled;
+# key represents die count and value represents player position;
+for ((i=1; playerPosition < 100; i++ ))
 do
     dieValue=$(( ( RANDOM % 6 )  + 1 ));
     playStatus=$(( RANDOM % 5 ));
@@ -23,6 +25,6 @@ do
     else
         playerPosition=$temp;
     fi
+    gameStatus[$i]=$playerPosition;
 done
-# out put
-echo $playerPosition;
+noOfTimesDieRolled=${#gameStatus[@]};
