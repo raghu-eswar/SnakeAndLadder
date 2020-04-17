@@ -1,7 +1,7 @@
 echo "enter number of players "; read noOfPlayers;
 declare playerPlacesList;
 leadingPlayer=0;
-declare  playerStatusList;
+declare -A playerStatusList;
 numberOfChaces=0;
 
  # makes the all players to inetial state
@@ -54,5 +54,5 @@ play() {
 multiPlayer;
 
 # out put
-echo ${playerPlacesList[@]}
+echo ${playerPlacesList[@]};
 echo $numberOfChaces;
